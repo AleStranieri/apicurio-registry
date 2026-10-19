@@ -1,4 +1,5 @@
 import {
+  Button,
   Label,
 } from "@patternfly/react-core";
 import {
@@ -24,7 +25,6 @@ import {
   getAppUrl,
   getReadyCondition,
   getStorageType,
-  getUiUrl,
   isAuthEnabled,
 } from "../utils/k8s";
 import RegistryStatusBadge from "./RegistryStatusBadge";
@@ -37,7 +37,7 @@ const columns: TableColumn<ApicurioRegistry3>[] = [
   { title: "Auth", id: "auth" },
   { title: "Replicas", id: "replicas" },
   { title: "API", id: "api-url" },
-  { title: "UI", id: "ui-url" },
+  { title: "Registry Workspace", id: "ui-url" },
   { title: "Age", id: "age" },
 ];
 
@@ -57,6 +57,7 @@ const RegistryRow: React.FC<{
 }> = ({ obj, activeColumnIDs }) => {
   const readyCondition = getReadyCondition(obj);
   const resourcePath = `/k8s/ns/${obj.metadata.namespace}/${ApicurioRegistry3Model.apiGroup}~${ApicurioRegistry3Model.apiVersion}~${ApicurioRegistry3Model.kind}/${obj.metadata.name}`;
+  const workspacePath = `/apicurio/ns/${obj.metadata.namespace}/${obj.metadata.name}/dashboard`;
 
   return (
     <>
@@ -88,7 +89,15 @@ const RegistryRow: React.FC<{
         <ExternalLinkCell url={getAppUrl(obj)} />
       </TableData>
       <TableData id="ui-url" activeColumnIDs={activeColumnIDs}>
-        <ExternalLinkCell url={getUiUrl(obj)} />
+        <Button
+          variant="secondary"
+          size="sm"
+          component={(props: React.ComponentProps<"a">) => (
+            <Link {...props} to={workspacePath} />
+          )}
+        >
+          Open Registry
+        </Button>
       </TableData>
       <TableData id="age" activeColumnIDs={activeColumnIDs}>
         <Timestamp timestamp={obj.metadata.creationTimestamp} />

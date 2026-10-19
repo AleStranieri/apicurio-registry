@@ -61,5 +61,15 @@
         "$codeRef": "RegistryDetailPage"
       }
     }
+  },
+  {
+    "type": "console.page/route",
+    "properties": {
+      "exact": false,
+      "path": "/apicurio/ns/:ns/:name",
+      "component": {
+        "$codeRef": "RegistryWorkspacePage"
+      }
+    }
   }
 ]

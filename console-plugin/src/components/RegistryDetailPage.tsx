@@ -1,9 +1,12 @@
 import {
   Alert,
+  Button,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Flex,
+  FlexItem,
   Grid,
   GridItem,
   Label,
@@ -29,7 +32,7 @@ import {
   useK8sWatchResource,
 } from "@openshift-console/dynamic-plugin-sdk";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ApicurioRegistry3,
@@ -43,7 +46,6 @@ import {
   isAuthEnabled,
 } from "../utils/k8s";
 import RegistryStatusBadge from "./RegistryStatusBadge";
-import EmbeddedRegistryUI from "./EmbeddedRegistryUI";
 import ManagedResourcesTab from "./ManagedResourcesTab";
 import "../styles/plugin.css";
 
@@ -146,15 +148,33 @@ const RegistryDetailPage: React.FC = () => {
   const uiUrl = getUiUrl(registry);
   const app = registry.spec?.app;
   const ui = registry.spec?.ui;
+  const workspaceUrl = `/apicurio/ns/${namespace}/${name}/dashboard`;
 
   return (
     <>
       <PageSection variant="default" padding={{ default: "noPadding" }}>
-        <div style={{ padding: "1rem 1.5rem 0" }}>
-          <Title headingLevel="h1">
-            {registry.metadata.name}{" "}
-            <RegistryStatusBadge condition={readyCondition} />
-          </Title>
+        <div style={{ padding: "1rem 1.5rem 0.5rem" }}>
+          <Flex
+            justifyContent={{ default: "justifyContentSpaceBetween" }}
+            alignItems={{ default: "alignItemsCenter" }}
+          >
+            <FlexItem>
+              <Title headingLevel="h1">
+                {registry.metadata.name}{" "}
+                <RegistryStatusBadge condition={readyCondition} />
+              </Title>
+            </FlexItem>
+            <FlexItem>
+              <Button
+                variant="primary"
+                component={(props: React.ComponentProps<"a">) => (
+                  <Link {...props} to={workspaceUrl} />
+                )}
+              >
+                {t("Open Registry")}
+              </Button>
+            </FlexItem>
+          </Flex>
         </div>
 
         {errorConditions.length > 0 && (
@@ -387,13 +407,6 @@ const RegistryDetailPage: React.FC = () => {
             title={<TabTitleText>{t("Resources")}</TabTitleText>}
           >
             <ManagedResourcesTab registry={registry} />
-          </Tab>
-
-          <Tab
-            eventKey="registry-ui"
-            title={<TabTitleText>{t("Registry UI")}</TabTitleText>}
-          >
-            <EmbeddedRegistryUI registry={registry} />
           </Tab>
 
           <Tab

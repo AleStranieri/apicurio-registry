@@ -1,81 +1,58 @@
 import {
-  Bullseye,
   EmptyState,
   EmptyStateBody,
-  Spinner,
 } from "@patternfly/react-core";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ApicurioRegistry3, isAuthEnabled } from "../utils/k8s";
-import { getEmbeddedUIUrl, getRegistryUIUrl } from "../utils/registry-url";
+import { ApicurioRegistry3, getAppUrl, getUiUrl } from "../utils/k8s";
+import { EmbeddedApp } from "@app/EmbeddedApp";
 import "../styles/plugin.css";
 
 interface EmbeddedRegistryUIProps {
   registry: ApicurioRegistry3;
+  navPrefixPath?: string;
 }
 
 const EmbeddedRegistryUI: React.FC<EmbeddedRegistryUIProps> = ({
   registry,
+  navPrefixPath: customNavPrefixPath,
 }) => {
   const { t } = useTranslation("plugin__apicurio-registry");
-  const [loading, setLoading] = useState(true);
 
-  const uiUrl = getEmbeddedUIUrl(registry);
-  const directUrl = getRegistryUIUrl(registry);
-  const authEnabled = isAuthEnabled(registry);
+  const appBaseUrl = getAppUrl(registry);
+  const uiBaseUrl = getUiUrl(registry);
 
-  if (!directUrl) {
+  if (!appBaseUrl) {
     return (
       <EmptyState
-        titleText={t("Registry UI Unavailable")}
+        titleText={t("Registry API Unavailable")}
         headingLevel="h4"
         icon={ExclamationTriangleIcon}
       >
         <EmptyStateBody>
-          {t("Unable to determine the Registry UI URL for this instance.")}
+          {t("Unable to determine the Registry API URL for this instance.")}
         </EmptyStateBody>
       </EmptyState>
     );
   }
 
-  if (authEnabled) {
-    return (
-      <EmptyState titleText={t("Registry UI")} headingLevel="h4">
-        <EmptyStateBody>
-          {t("This registry is secured with authentication. The Registry UI must be opened directly.")}
-          <br /><br />
-          <a
-            href={directUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: "1.1rem", fontWeight: 600 }}
-          >
-            {t("Open Registry UI")} ↗
-          </a>
-        </EmptyStateBody>
-      </EmptyState>
-    );
-  }
+  const rawApiUrl = `${appBaseUrl.replace(/\/$/, "")}/apis/registry/v3`;
+  const apiUrl = appBaseUrl.includes("localhost:8080")
+    ? `${window.location.origin}/api/plugins/apicurio-registry/registry-api/apis/registry/v3`
+    : rawApiUrl;
+  const editorsUrl = uiBaseUrl
+    ? `${uiBaseUrl.replace(/\/$/, "")}/editors/`
+    : "http://localhost:8888/editors/";
+  const navPrefixPath =
+    customNavPrefixPath ??
+    `/apicurio/ns/${registry.metadata.namespace}/${registry.metadata.name}`;
 
   return (
     <div className="apicurio-registry-embedded-ui">
-      <div className="apicurio-registry-embedded-ui__toolbar">
-        <a href={directUrl} target="_blank" rel="noopener noreferrer">
-          {t("Open in new tab")} ↗
-        </a>
-      </div>
-      {loading && (
-        <Bullseye>
-          <Spinner size="xl" aria-label={t("Loading Registry UI...")} />
-        </Bullseye>
-      )}
-      <iframe
-        src={uiUrl!}
-        title={t("Apicurio Registry")}
-        className="apicurio-registry-embedded-ui__iframe"
-        onLoad={() => setLoading(false)}
-        style={{ display: loading ? "none" : "block" }}
+      <EmbeddedApp
+        apiUrl={apiUrl}
+        navPrefixPath={navPrefixPath}
+        editorsUrl={editorsUrl}
       />
     </div>
   );

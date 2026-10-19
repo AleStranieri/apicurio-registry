@@ -133,15 +133,25 @@ function _getRegistryConfig(): ApicurioRegistryConfig {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    if (ApicurioRegistryConfig) { config = ApicurioRegistryConfig as ApicurioRegistryConfig; }
+    if (typeof ApicurioRegistryConfig !== "undefined" && ApicurioRegistryConfig) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        config = ApicurioRegistryConfig as ApicurioRegistryConfig;
+    }
 
-    const gw: any = window as any;
-    if (gw["ApicurioRegistryConfig"]) {
-        config = gw["ApicurioRegistryConfig"] as ApicurioRegistryConfig;
+    if (typeof window !== "undefined") {
+        const gw: any = window as any;
+        if (gw["ApicurioRegistryConfig"]) {
+            config = gw["ApicurioRegistryConfig"] as ApicurioRegistryConfig;
+        }
     }
 
     if (!config) {
-        throw new Error("ApicurioRegistryConfig not found.");
+        return {
+            artifacts: { url: "http://localhost:8080/apis/registry/v3" },
+            auth: { type: "none", rbacEnabled: false, obacEnabled: false },
+            features: { showMasthead: false, readOnly: false, breadcrumbs: true, draftMutability: true }
+        };
     }
 
     return config;
@@ -221,6 +231,7 @@ let registryConfig: ApicurioRegistryConfig = _getRegistryConfig();
 
 export interface ConfigService {
 
+    updateConfig(config: ApicurioRegistryConfig): void;
     fetchAndMergeConfigs(): Promise<void>;
     artifactsUrl(): string;
     uiContextPath(): string|undefined;
@@ -249,6 +260,10 @@ export interface ConfigService {
 
 
 export class ConfigServiceImpl implements ConfigService {
+
+    public updateConfig(config: ApicurioRegistryConfig): void {
+        registryConfig = config;
+    }
 
     public fetchAndMergeConfigs(): Promise<void> {
         const endpoint: string = createEndpoint(this.artifactsUrl(), "/system/uiConfig");

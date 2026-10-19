@@ -59,8 +59,13 @@ export async function initializeMonaco(): Promise<void> {
     (globalThis as any).MonacoEnvironment = {
         ...(globalThis as any).MonacoEnvironment,
         getWorker(_workerId: string, label: string): Worker {
-            const WorkerConstructor: new () => Worker = chooseWorkerConstructor(label);
-            return new WorkerConstructor();
+            const WorkerConstructor: any = chooseWorkerConstructor(label);
+            if (typeof WorkerConstructor === "function") {
+                return new WorkerConstructor();
+            }
+            return new Worker(
+                URL.createObjectURL(new Blob([""], { type: "application/javascript" }))
+            );
         }
     };
 

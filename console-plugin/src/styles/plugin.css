@@ -1,16 +1,15 @@
+.apicurio-registry-workspace-bar {
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #d2d2d2);
+  background-color: var(--pf-t--global--background--color--primary--default, #ffffff);
+}
+
 .apicurio-registry-embedded-ui {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: calc(100vh - 250px);
-  min-height: 400px;
-}
-
-.apicurio-registry-embedded-ui__toolbar {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0.25rem 1rem;
-  border-bottom: 1px solid var(--pf-global--BorderColor--100, #d2d2d2);
+  flex: 1;
+  min-height: calc(100vh - 140px);
 }
 
 .apicurio-registry-embedded-ui__iframe {

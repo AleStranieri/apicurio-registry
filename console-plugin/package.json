@@ -47,7 +47,8 @@
     "description": "OpenShift Console plugin for managing Apicurio Registry instances",
     "exposedModules": {
       "RegistryListPage": "./components/RegistryListPage",
-      "RegistryDetailPage": "./components/RegistryDetailPage"
+      "RegistryDetailPage": "./components/RegistryDetailPage",
+      "RegistryWorkspacePage": "./components/RegistryWorkspacePage"
     },
     "dependencies": {
       "@console/pluginAPI": "*"
