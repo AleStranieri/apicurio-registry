@@ -123,6 +123,9 @@ jobs:
               - 'operator/**'
             console-plugin:
               - 'console-plugin/**'
+              - 'ui/ui-app/**'
+              - 'ui/.scripts/ensure-sdk-built.cjs'
+              - 'typescript-sdk/**'
             ci:
               - '.github/workflows/**'
             ci-operator:

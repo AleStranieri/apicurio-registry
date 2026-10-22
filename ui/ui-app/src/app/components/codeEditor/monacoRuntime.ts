@@ -7,6 +7,8 @@ import HtmlWorker from "monaco-editor/language/html/html.worker.js?worker";
 import TypeScriptWorker from "monaco-editor/language/typescript/ts.worker.js?worker";
 import { registerCustomLanguages } from "@editors/registerLanguages.ts";
 
+export { monaco };
+
 // Re-export the upstream React components.  Consumers must only ever obtain these through
 // "loadMonacoRuntime.ts" (never by importing this module directly), so that Monaco's
 // implementation is not pulled into the initial application bundle.

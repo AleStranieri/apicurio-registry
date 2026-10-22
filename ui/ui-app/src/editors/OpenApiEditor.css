@@ -8,3 +8,26 @@
 .editor-openapi-flex-container .editor-flex-editor {
     flex-grow: 1;
 }
+
+.registry-openapi-editor {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.registry-openapi-editor__selector {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.registry-openapi-editor > .apitomy-openapi-editor {
+    flex: 1;
+    min-height: 0;
+}
+
+.registry-openapi-editor > iframe {
+    min-height: 0;
+    border: none;
+    width: 100%;
+}

@@ -1,6 +1,7 @@
 node_modules/
 dist/
+dist-dev/
 .yarn/
 *.tgz
-package-lock.json
 root-pom.xml
+.runtime/

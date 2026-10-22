@@ -49,6 +49,8 @@ const RegistryWorkspacePage: React.FC = () => {
 
   return (
     <PageSection
+      className="apicurio-registry-workspace"
+      hasBodyWrapper={false}
       variant="default"
       padding={{ default: "noPadding" }}
       isFilled

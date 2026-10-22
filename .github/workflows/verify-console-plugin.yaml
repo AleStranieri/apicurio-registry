@@ -19,13 +19,29 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20.20.2'
+          node-version: '24.21.0'
           cache: 'npm'
-          cache-dependency-path: console-plugin/package.json
+          cache-dependency-path: |
+            console-plugin/package-lock.json
+            ui/ui-app/package-lock.json
+            typescript-sdk/package-lock.json
+
+      - name: Install and build the shared Registry SDK
+        working-directory: typescript-sdk
+        run: |
+          npm ci
+          node ../ui/.scripts/ensure-sdk-built.cjs
+
+      - name: Install and test the embedded Registry UI
+        working-directory: ui/ui-app
+        run: |
+          npm ci
+          npm test
+          npm run build
 
       - name: Install frontend dependencies
         working-directory: console-plugin
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Build frontend
         working-directory: console-plugin

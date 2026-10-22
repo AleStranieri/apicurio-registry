@@ -1,0 +1,12 @@
+{
+  "artifactId": "bob-apitomy-baseline",
+  "artifactType": "OPENAPI",
+  "firstVersion": {
+    "version": "1",
+    "isDraft": true,
+    "content": {
+      "contentType": "application/json",
+      "content": "{\"openapi\":\"3.0.3\",\"info\":{\"title\":\"Pet Store API\",\"version\":\"1.0.0\"},\"paths\":{}}"
+    }
+  }
+}

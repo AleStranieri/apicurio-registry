@@ -6,7 +6,10 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { useTranslation } from "react-i18next";
 import { ApicurioRegistry3, getAppUrl, getUiUrl } from "../utils/k8s";
 import { EmbeddedApp } from "@app/EmbeddedApp";
+import { ConsoleProxyMiddleware } from "../utils/console-proxy-middleware";
 import "../styles/plugin.css";
+
+const requestMiddleware = [new ConsoleProxyMiddleware()];
 
 interface EmbeddedRegistryUIProps {
   registry: ApicurioRegistry3;
@@ -38,7 +41,7 @@ const EmbeddedRegistryUI: React.FC<EmbeddedRegistryUIProps> = ({
 
   const rawApiUrl = `${appBaseUrl.replace(/\/$/, "")}/apis/registry/v3`;
   const apiUrl = appBaseUrl.includes("localhost:8080")
-    ? `${window.location.origin}/api/plugins/apicurio-registry/registry-api/apis/registry/v3`
+    ? `${window.location.origin}/api/proxy/plugin/apicurio-registry/registry-api/apis/registry/v3`
     : rawApiUrl;
   const editorsUrl = uiBaseUrl
     ? `${uiBaseUrl.replace(/\/$/, "")}/editors/`
@@ -53,6 +56,7 @@ const EmbeddedRegistryUI: React.FC<EmbeddedRegistryUIProps> = ({
         apiUrl={apiUrl}
         navPrefixPath={navPrefixPath}
         editorsUrl={editorsUrl}
+        requestMiddleware={requestMiddleware}
       />
     </div>
   );

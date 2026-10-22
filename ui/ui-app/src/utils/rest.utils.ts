@@ -8,9 +8,18 @@ import { getReauthenticationService } from "@services/useReauthenticationService
 import { ApicurioRegistryClient, RegistryClientFactory } from "@apicurio/apicurio-registry-sdk";
 import { Labels } from "@sdk/lib/generated-client/models";
 import type { Middleware } from "@microsoft/kiota-http-fetchlibrary";
+import { MiddlewareFactory } from "@microsoft/kiota-http-fetchlibrary";
 
 const AUTH_HEADER_KEY = "Authorization";
 const BEARER_TOKEN_KEY = "Bearer";
+
+let embeddedRequestMiddleware: Middleware[] = [];
+
+/** Install host-specific request middleware before mounting the embedded application. */
+export function configureEmbeddedRequestMiddleware(middleware: Middleware[] = []): void {
+    embeddedRequestMiddleware = middleware;
+    client = undefined;
+}
 
 export function getErrorStatus(error: unknown): number | undefined {
     if (!error || typeof error !== "object") {
@@ -177,15 +186,17 @@ class RefreshOn401Handler implements Middleware {
 
 function createRegistryClient(config: ConfigService, auth: AuthService): ApicurioRegistryClient {
     const authProvider = createAuthProvider(auth);
-    const middlewares = [];
+    const middlewares: Middleware[] = [...embeddedRequestMiddleware];
     if (auth.isOidcAuthEnabled()) {
         middlewares.push(new RefreshOn401Handler(auth));
     }
 
-    return RegistryClientFactory.createRegistryClient(config.artifactsUrl(), authProvider, middlewares);
+    // Kiota's default chain ends in a fetch handler. Host middleware must precede it.
+    return RegistryClientFactory.createRegistryClient(config.artifactsUrl(), authProvider,
+        [...middlewares, ...MiddlewareFactory.getPerformanceMiddlewares()], false);
 }
 
-let client: ApicurioRegistryClient;
+let client: ApicurioRegistryClient | undefined;
 
 export const getRegistryClient = (config: ConfigService, auth: AuthService): ApicurioRegistryClient => {
     if (client === undefined) {

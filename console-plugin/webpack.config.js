@@ -1,18 +1,23 @@
 const path = require("path");
 const { ConsoleRemotePlugin } = require("@openshift-console/dynamic-plugin-sdk-webpack");
+const isProduction = process.env.NODE_ENV === "production";
+const outputDirectory = path.resolve(__dirname, isProduction ? "dist" : "dist-dev");
 
 module.exports = {
-  mode: "production",
+  mode: isProduction ? "production" : "development",
   context: path.resolve(__dirname, "src"),
   entry: {},
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: outputDirectory,
     filename: "[name]-bundle.js",
     chunkFilename: "[name]-chunk.js",
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
     alias: {
+      "@apitomy/openapi-editor-styles": path.resolve(
+        __dirname, "../ui/ui-app/node_modules/@apitomy/openapi-editor/dist/openapi-editor.css"
+      ),
       "@app": path.resolve(__dirname, "../ui/ui-app/src/app"),
       "@models": path.resolve(__dirname, "../ui/ui-app/src/models"),
       "@editors": path.resolve(__dirname, "../ui/ui-app/src/editors"),
@@ -49,6 +54,10 @@ module.exports = {
   module: {
     rules: [
       {
+        resourceQuery: /worker/,
+        use: [path.resolve(__dirname, "worker-loader.js")],
+      },
+      {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: [
@@ -78,11 +87,13 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: ["style-loader", "css-loader", path.resolve(__dirname, "scope-apitomy-css-loader.js")],
       },
     ],
   },
-  plugins: [new ConsoleRemotePlugin()],
+  // SDK 4.20 declares React 17; this PoC console actually provides React 18.3.1.
+  // Keep sharing the host React singleton required by the new editor.
+  plugins: [new ConsoleRemotePlugin({ validateSharedModules: false })],
   devtool: "source-map",
   performance: {
     hints: false,
@@ -96,7 +107,7 @@ module.exports = {
       },
     },
     static: {
-      directory: path.resolve(__dirname, "dist"),
+      directory: outputDirectory,
     },
     devMiddleware: {
       writeToDisk: true,

@@ -18,6 +18,29 @@
   border: none;
 }
 
+.apicurio-registry-workspace .apicurio-registry-embedded-ui {
+  min-height: 0;
+}
+
+.apicurio-registry-workspace,
+.apicurio-registry-embedded-ui #section-editor {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.apicurio-registry-embedded-ui > .pf-m-redhat-font,
+.apicurio-registry-embedded-ui #section-editor > .editor-parent {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.apicurio-registry-embedded-ui .editor-parent > iframe {
+  flex: 1;
+  min-height: 0;
+  border: none;
+}
+
 #apicurio-yaml-editor > *,
 #apicurio-yaml-editor .co-file-dropzone__flex,
 #apicurio-yaml-editor .co-p-has-sidebar,

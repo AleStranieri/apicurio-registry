@@ -1,0 +1,13 @@
+# Disposable baseline for the Apitomy UI, not an ODH deployment.
+name: apicurio-bob-baseline
+services:
+  registry:
+    image: docker.io/apicurio/apicurio-registry:3.3.1
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      QUARKUS_HTTP_CORS_ORIGINS: http://localhost:8888
+  legacy-ui:
+    image: docker.io/apicurio/apicurio-registry-ui:3.3.1
+    ports:
+      - "127.0.0.1:8889:8080"

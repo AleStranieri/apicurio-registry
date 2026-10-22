@@ -5,19 +5,23 @@ import { ConfigService, useConfigService } from "@services/useConfigService.ts";
 import { MainPageWithAuth } from "@app/MainPageWithAuth.tsx";
 import { ErrorBoundaryWithRouter } from "@app/components";
 import { ThemeProvider } from "@services/useThemeService.tsx";
+import type { Middleware } from "@microsoft/kiota-http-fetchlibrary";
+import { configureEmbeddedRequestMiddleware } from "@utils/rest.utils";
 
 export interface EmbeddedAppProps {
     apiUrl: string;
     navPrefixPath: string;
     editorsUrl?: string;
+    requestMiddleware?: Middleware[];
 }
 
-export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPrefixPath, editorsUrl }) => {
+export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPrefixPath, editorsUrl, requestMiddleware }) => {
     const config: ConfigService = useConfigService();
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
         setReady(false);
+        configureEmbeddedRequestMiddleware(requestMiddleware);
         config.updateConfig({
             artifacts: {
                 url: apiUrl
@@ -46,7 +50,8 @@ export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPr
         config.fetchAndMergeConfigs().finally(() => {
             setReady(true);
         });
-    }, [apiUrl, navPrefixPath, editorsUrl]);
+        return () => configureEmbeddedRequestMiddleware();
+    }, [apiUrl, navPrefixPath, editorsUrl, requestMiddleware]);
 
     if (!ready) {
         return (

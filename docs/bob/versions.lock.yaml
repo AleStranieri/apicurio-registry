@@ -1,0 +1,29 @@
+# Baseline editor; campi modello/ODH ancora da verificare con Bob.
+source:
+  branch: poc/openapi-ai-assistant
+  base_commit: 1356fa08a3dedd6a919550c5fe533092b4a66a37
+  snapshot_commit: "git rev-parse HEAD sul clone della consegna"
+linux_validation:
+  node: 24.18.0
+  npm: 11.16.0
+  architecture: x86_64
+lockfiles:
+  - path: typescript-sdk/package-lock.json
+    sha256: 7a28cb66b75cb57b0afd354dc6f4671e4af44edebe037aafacea7b90cb503056
+  - path: ui/ui-app/package-lock.json
+    sha256: d7c4c0c72f40e7e411516ada9456c0a3ccca9f1ff36874009daceb66e7d1ac62
+  - path: console-plugin/package-lock.json
+    sha256: 018f4eb9827cac5d7a5c3a9ee500e125a09ee26b5990bbdb3a43130f2698eafe
+editor:
+  apitomy: 0.2.0
+  data_models: 3.1.0
+  zustand: 5.0.11
+  patternfly: 6.6.1
+images:
+  registry: docker.io/apicurio/apicurio-registry:3.3.1
+  legacy_ui: docker.io/apicurio/apicurio-registry-ui:3.3.1
+  digests: null # NOT VERIFIED
+  arm64: null # NOT VERIFIED
+model: null # NOT IMPLEMENTED / NOT VERIFIED
+llm_runtime: null # NOT VERIFIED
+odh: null # NOT VERIFIED
