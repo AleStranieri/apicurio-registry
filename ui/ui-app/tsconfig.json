@@ -27,7 +27,13 @@
       "@editors/*": [ "./src/editors/*" ],
       "@utils/*": [ "./src/utils/*" ],
       "@services/*": [ "./src/services/*" ],
-      "@sdk/*": [ "../../typescript-sdk/*" ]
+      "@sdk/*": [ "../../typescript-sdk/*" ],
+      "@microsoft/kiota-abstractions": [ "./node_modules/@microsoft/kiota-abstractions" ],
+      "@microsoft/kiota-http-fetchlibrary": [ "./node_modules/@microsoft/kiota-http-fetchlibrary" ],
+      "@microsoft/kiota-serialization-form": [ "./node_modules/@microsoft/kiota-serialization-form" ],
+      "@microsoft/kiota-serialization-json": [ "./node_modules/@microsoft/kiota-serialization-json" ],
+      "@microsoft/kiota-serialization-multipart": [ "./node_modules/@microsoft/kiota-serialization-multipart" ],
+      "@microsoft/kiota-serialization-text": [ "./node_modules/@microsoft/kiota-serialization-text" ]
     }
   },
   "include": [

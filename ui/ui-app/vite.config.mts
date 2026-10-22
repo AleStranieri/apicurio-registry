@@ -18,7 +18,13 @@ export default defineConfig({
     }],
     resolve: {
         alias: {
-            "@apitomy/openapi-editor-styles": fileURLToPath(new URL("./node_modules/@apitomy/openapi-editor/dist/openapi-editor.css", import.meta.url))
+            "@apitomy/openapi-editor-styles": fileURLToPath(new URL("./node_modules/@apitomy/openapi-editor/dist/openapi-editor.css", import.meta.url)),
+            "@microsoft/kiota-abstractions": fileURLToPath(new URL("./node_modules/@microsoft/kiota-abstractions", import.meta.url)),
+            "@microsoft/kiota-http-fetchlibrary": fileURLToPath(new URL("./node_modules/@microsoft/kiota-http-fetchlibrary", import.meta.url)),
+            "@microsoft/kiota-serialization-form": fileURLToPath(new URL("./node_modules/@microsoft/kiota-serialization-form", import.meta.url)),
+            "@microsoft/kiota-serialization-json": fileURLToPath(new URL("./node_modules/@microsoft/kiota-serialization-json", import.meta.url)),
+            "@microsoft/kiota-serialization-multipart": fileURLToPath(new URL("./node_modules/@microsoft/kiota-serialization-multipart", import.meta.url)),
+            "@microsoft/kiota-serialization-text": fileURLToPath(new URL("./node_modules/@microsoft/kiota-serialization-text", import.meta.url))
         }
     },
     server: {
