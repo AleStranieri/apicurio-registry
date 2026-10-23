@@ -1,0 +1,56 @@
+{
+  "test": "G5 manual proposal from standalone editor",
+  "date": "2026-10-23",
+  "timezone": "Europe/Rome",
+  "requestId": "86ef8147-fd83-4dec-80d5-ae0776e5ecba",
+  "context": {
+    "editorUrl": "http://localhost:8888/explore/ai-poc/inventory-api/versions/1/editor",
+    "contextSource": "user-reported editor page"
+  },
+  "evidenceSource": "G4 service structured logs from the user-triggered request",
+  "result": {
+    "status": "applicable",
+    "attemptCount": 1,
+    "toolCallCount": 4,
+    "modelToolCallCount": 3,
+    "validationToolCallCount": 1,
+    "elapsedMs": 60645
+  },
+  "toolEvents": [
+    {
+      "localTimestamp": "2026-10-23T16:43:23.107",
+      "tool": "get_version_content",
+      "source": "model",
+      "calls": 1,
+      "elapsedMs": 6928
+    },
+    {
+      "localTimestamp": "2026-10-23T16:43:47.883",
+      "tool": "test_schema_rules",
+      "source": "model",
+      "calls": 2,
+      "elapsedMs": 31704
+    },
+    {
+      "localTimestamp": "2026-10-23T16:43:48.895",
+      "tool": "get_version_content",
+      "source": "model",
+      "calls": 3,
+      "elapsedMs": 32716
+    },
+    {
+      "localTimestamp": "2026-10-23T16:44:16.819",
+      "tool": "test_schema_rules",
+      "source": "validation",
+      "calls": 4,
+      "elapsedMs": 60640
+    }
+  ],
+  "completionLocalTimestamp": "2026-10-23T16:44:16.825",
+  "limitations": [
+    "The exact instruction, request body, candidate and semantic diff were not captured for this manual request.",
+    "Service applicability is observed; instruction-following correctness is not independently verified.",
+    "User application, Registry save and reload outcomes are not observed for this request.",
+    "This single manual run does not complete the C1/M1/M2 model-quality matrix or the console-host browser gate."
+  ]
+}

@@ -153,3 +153,71 @@ G5 planning: [main plan](../../docs/2026-10-22-openapi-ai-poc-plan.md) and
 [Axiom/PatternFly reuse decisions](../../docs/2026-10-23-openapi-ai-g5-reuse-decisions.md).
 Prefer the official PatternFly input if its selected release passes both frontend builds;
 Axiom reuse is optional and OpenViking remains deferred.
+
+## G5 editor panel
+
+The shared OpenAPI editor now has an optional proposal panel. It uses existing PatternFly
+6.6.1 `TextArea`/`Button`; no Chatbot, Axiom or OpenViking runtime dependency is added.
+Set `ApicurioRegistryConfig.ui.openApiAssistantUrl = "/openapi-assistant/proposals"` in the
+standalone UI's local `config.js` to enable the **Open AI assistant** button. Omit the setting
+to disable it. Vite proxies that prefix to loopback port 8082. Start G4 as described above.
+Only same-origin proposal URLs are accepted; redirects are refused.
+
+The console embedding accepts `assistantUrl` and configures it for the existing localhost
+Registry PoC only, through
+`/api/proxy/plugin/apicurio-registry/registry-api/openapi-assistant/proposals`.
+The existing console service proxy forwards to Webpack's `/registry-api/openapi-assistant`
+route, which targets G4 on 8082. Console writes include the CSRF cookie header. This reuses
+the local service proxy documented in `console-plugin/APITOMY-POC.md`; it does not add a
+cluster service or an authenticated production deployment. Other Registry instances have
+no assistant configured. Pass no `assistantUrl` to disable the embedded panel.
+
+Source is blocked for both Propose and Apply, even when clean. Save or revert it with its
+own toolbar, then return to Design. Uncommitted visual input also blocks requests. The
+Source guard uses `.source-form` from the pinned editor 0.2.0 because that release provides
+no public buffer-state callback; test this guard again before upgrading the editor. Inputs
+advance the revision immediately without rerendering the editor. Committed model changes,
+editor switches, navigation, recovery and panel unmount invalidate pending work.
+
+Review the candidate, semantic diff and diagnostics, then choose **Apply to draft** or
+**Reject**. Apply and **Restore pre-AI draft** reload through the public `initialContent`
+prop and reset editor history. Restore replaces subsequent edits with the exact draft
+captured immediately before the most recent AI application; it is an in-memory checkpoint,
+not a complete undo history and not retained after navigation/reload. Ordinary editing
+starts a fresh undo/redo history after Apply. Registry Save remains separate. JSON stays
+JSON; Registry's `application/x-yaml` is mapped to G4's `application/yaml` on the wire,
+while saved content stays YAML. Object editing/generation can reformat and remove comments.
+
+Stop waiting and the 190-second browser timeout abort fetch and invalidate late results.
+They do not establish that G4 inference stopped. Errors preserve the instruction. The
+editor and its save/fallback flows remain available when the assistant is closed or offline.
+This is a local OpenAPI **3.0.3** PoC, not a complete model-quality or ODH evaluation.
+
+Deterministic frontend checks, separately:
+
+```sh
+npm test --prefix ui/ui-app
+npm run build --prefix ui/ui-app
+npm run test:openapi-ai --prefix console-plugin # actual React 18 renderer + PF 6.6.1
+npm run build --prefix console-plugin
+```
+
+Install UI and console dependencies from their lockfiles first (console uses
+`npm ci --legacy-peer-deps`). The console test command uses the UI's Vitest installation
+and the console's React/React DOM/Testing Library; a version assertion prevents silently
+running the suite with React 19.
+
+Browser verification with installed Playwright/Chromium and the standalone UI on 8888:
+
+```sh
+PLAYWRIGHT_MODULE=/path/to/node_modules/playwright \
+  node console-plugin/tests/verify-openapi-ai.cjs
+```
+
+The script intercepts proposals with controlled responses, uses the real editor and
+Registry save/reload, and creates/deletes only temporary `g5-*` artifacts in `ai-poc`.
+It reads and checks `ai-poc/inventory-api` unchanged. No model is contacted. Set
+`POC_AI_EDITOR_BASE_URL` to a running console's full route ending in `/explore/ai-poc/`
+to run against the host plugin; that host-browser run has not been performed here.
+Local screenshots/report go to ignored `console-plugin/.runtime/openapi-ai`.
+See [G5 evidence and limitations](reports/g5-validation.md).

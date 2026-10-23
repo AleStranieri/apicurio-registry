@@ -29,6 +29,7 @@ import { ContentTypes } from "@models/ContentTypes.ts";
 import { PleaseWaitModal } from "@apitomy/common-ui-components";
 import { Draft, DraftContent } from "@models/drafts";
 import { useDraftsService } from "@services/useDraftsService.ts";
+import { useConfigService } from "@services/useConfigService";
 import { useDownloadService } from "@services/useDownloadService.ts";
 import { isStringEmptyOrUndefined } from "@utils/string.utils.ts";
 import {
@@ -116,6 +117,7 @@ export const EditorPage: FunctionComponent<PageProperties> = () => {
     const version = params.version as string;
     const draftDisplayName = draft.name || draft.draftId;
 
+    const config = useConfigService();
     const drafts = useDraftsService();
     const groups: GroupsService = useGroupsService();
     const downloadSvc = useDownloadService();
@@ -436,7 +438,9 @@ export const EditorPage: FunctionComponent<PageProperties> = () => {
     );
 
     const openapiEditor: React.ReactElement = (
-        <OpenApiEditor key={`openapi-${snapshotKey}-${iframeEditorKey}`} content={draftContent} onChange={onEditorChange}/>
+        <OpenApiEditor key={`openapi-${snapshotKey}-${iframeEditorKey}`} content={draftContent} onChange={onEditorChange}
+            documentId={snapshotKey} registryContext={{ groupId, artifactId: draftId, version }}
+            assistantEndpoint={config.uiOpenApiAssistantUrl()}/>
     );
 
     const asyncapiEditor: React.ReactElement = (

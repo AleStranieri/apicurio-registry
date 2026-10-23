@@ -13,7 +13,8 @@
     "lint": "eslint src/ --ext .ts,.tsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx --fix",
     "i18n": "i18next 'src/**/*.{js,jsx,ts,tsx}' [-oc] -c i18next-parser.config.js",
-    "test:apitomy-poc": "node tests/verify-apitomy-poc.cjs"
+    "test:apitomy-poc": "node tests/verify-apitomy-poc.cjs",
+    "test:openapi-ai": "G5_CONSOLE_TEST=1 node ../ui/ui-app/node_modules/vitest/vitest.mjs run --root ../ui/ui-app src/editors/OpenApiProposalClient.test.ts src/editors/OpenApiAiPanel.test.tsx src/editors/OpenApiEditor.test.tsx"
   },
   "devDependencies": {
     "@microsoft/kiota-abstractions": "1.0.0-preview.110",
@@ -23,11 +24,13 @@
     "@patternfly/react-core": "6.6.1",
     "@patternfly/react-icons": "6.6.1",
     "@patternfly/react-table": "6.6.1",
-    "ajv": "^8.17.0",
     "@swc/core": "^1.15.0",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/react": "16.3.3",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@types/react-router-dom": "~5.3.0",
+    "ajv": "^8.17.0",
     "css-loader": "^7.1.0",
     "eslint": "^9.7.0",
     "i18next-parser": "^9.0.0",

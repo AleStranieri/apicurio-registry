@@ -43,6 +43,10 @@ jobs:
         working-directory: console-plugin
         run: npm ci --legacy-peer-deps
 
+      - name: Test AI panel with the console React 18 renderer
+        working-directory: console-plugin
+        run: npm run test:openapi-ai
+
       - name: Build frontend
         working-directory: console-plugin
         run: npm run build

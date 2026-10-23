@@ -125,6 +125,7 @@ jobs:
             operator:
               - 'operator/**'
             console-plugin:
+              - 'examples/openapi-ai-assistant/service/**'
               - 'console-plugin/**'
               - 'ui/ui-app/**'
               - 'ui/.scripts/ensure-sdk-built.cjs'

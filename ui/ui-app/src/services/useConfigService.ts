@@ -74,6 +74,7 @@ export interface ArtifactsConfig {
 }
 
 export interface UiConfig {
+    openApiAssistantUrl?: string;
     contextPath?: string;
     navPrefixPath?: string;
     oaiDocsUrl?: string;
@@ -237,6 +238,7 @@ export interface ConfigService {
     uiContextPath(): string|undefined;
     uiOaiDocsUrl(): string;
     uiEditorsUrl(): string;
+    uiOpenApiAssistantUrl(): string | undefined;
     uiNavPrefixPath(): string|undefined;
     features(): FeaturesConfig;
     featureReadOnly(): boolean;
@@ -309,6 +311,10 @@ export class ConfigServiceImpl implements ConfigService {
         console.info("=====> DOCS URL: ", registryConfig.ui?.oaiDocsUrl);
         console.info("=====> Context Path: ", this.uiContextPath());
         return registryConfig.ui?.oaiDocsUrl || (this.uiContextPath() + "docs");
+    }
+
+    public uiOpenApiAssistantUrl(): string | undefined {
+        return registryConfig.ui?.openApiAssistantUrl;
     }
 
     public uiEditorsUrl(): string {

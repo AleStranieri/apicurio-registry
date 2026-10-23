@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
+import { webcrypto } from "node:crypto";
+import { useState } from "react";
+Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { OpenApiEditor } from "./OpenApiEditor";
@@ -11,9 +14,13 @@ import type { IframeEditorProps } from "./IframeEditor";
 const { documents } = vi.hoisted(() => ({ documents: [] as unknown[] }));
 vi.mock("@app/components/codeEditor/loadMonacoRuntime", () => ({ loadMonacoRuntime: async () => ({ monaco: {} }) }));
 vi.mock("./ApitomyEditor", () => ({
-    default: (props: OpenAPIEditorProps) => {
+    default: function MockApitomyEditor(props: OpenAPIEditorProps) {
+        const [source, setSource] = useState(false);
         documents.push(props.initialContent);
         return <div>
+            <button onClick={() => setSource(value => !value)}>Source toggle</button>
+            {source && <div className="source-form"><textarea aria-label="Unapplied Source" /><button>Revert</button></div>}
+            <input aria-label="Uncommitted visual field" />
             <pre data-testid="initial-document">{JSON.stringify(props.initialContent)}</pre>
             <button onClick={() => props.onChange?.({ isDirty: false, version: 1, getContent: () => ({}) })}>Load</button>
             <button onClick={() => props.onChange?.({ isDirty: true, version: 2,
@@ -33,7 +40,7 @@ vi.mock("./IframeEditor", () => ({
 const original = "{\"openapi\":\"3.0.2\",\"info\":{\"title\":\"Original\",\"version\":\"1\"},\"paths\":{}}";
 const jsonDraft = { content: original, contentType: ContentTypes.APPLICATION_JSON };
 
-afterEach(() => { cleanup(); documents.length = 0; });
+afterEach(() => { cleanup(); documents.length = 0; vi.unstubAllGlobals(); });
 
 async function ready() { await screen.findByTestId("initial-document"); }
 
@@ -126,4 +133,90 @@ describe("OpenAPI content conversion", () => {
     it("serializes using Registry JSON indentation", () => {
         expect(serializeOpenApiDocument({ openapi: "3.0.2" }, ContentTypes.APPLICATION_JSON)).toBe("{\n    \"openapi\": \"3.0.2\"\n}");
     });
+});
+
+
+describe("AI editor integration", () => {
+    function configure() {
+        const fetch = vi.fn(async (_url, init) => {
+            const body = JSON.parse(init.body);
+            return { ok: true, json: async () => ({ ...body.draft, requestId: body.requestId,
+                status: "applicable", candidate: original.replace("Original", "AI title"),
+                diff: [], diagnostics: [] }) };
+        });
+        vi.stubGlobal("fetch", fetch);
+        const onChange = vi.fn();
+        const view = render(<OpenApiEditor content={jsonDraft} onChange={onChange}
+            documentId="ai-poc/inventory-api/1" assistantEndpoint="/openapi-assistant/proposals"
+            registryContext={{ groupId: "ai-poc", artifactId: "inventory-api", version: "1" }} />);
+        return { ...view, onChange, fetch };
+    }
+    async function propose() {
+        fireEvent.change(screen.getByLabelText("Assistant instruction"), { target: { value: "Change title" } });
+        fireEvent.click(screen.getByText("Propose"));
+        await screen.findByText("Apply to draft");
+    }
+    it("applies only on explicit acceptance and restores exact pre-AI text", async () => {
+        const view = configure(); await ready();
+        fireEvent.click(screen.getByText("Open AI assistant"));
+        await propose(); expect(view.onChange).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByText("Apply to draft"));
+        await waitFor(() => expect(screen.getByTestId("initial-document")).toHaveTextContent("AI title"));
+        expect(view.onChange).toHaveBeenCalledExactlyOnceWith(original.replace("Original", "AI title"));
+        fireEvent.click(screen.getByText("Restore pre-AI draft"));
+        await waitFor(() => expect(screen.getByTestId("initial-document")).toHaveTextContent("Original"));
+        expect(view.onChange).toHaveBeenLastCalledWith(original);
+        expect(view.fetch).toHaveBeenCalledTimes(1);
+    });
+    it("blocks Source before its debounce and blocks unapplied visual fields", async () => {
+        const view = configure(); await ready();
+        fireEvent.click(screen.getByText("Open AI assistant"));
+        fireEvent.click(screen.getByText("Source toggle"));
+        fireEvent.input(screen.getByLabelText("Unapplied Source"), { target: { value: "unapplied" } });
+        fireEvent.change(screen.getByLabelText("Assistant instruction"), { target: { value: "Change" } });
+        fireEvent.click(screen.getByText("Propose"));
+        await screen.findByText(/Source or a visual field/); expect(view.fetch).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByText("Source toggle"));
+        const rendered = documents.length;
+        fireEvent.input(screen.getByLabelText("Uncommitted visual field"), { target: { value: "pending" } });
+        expect(documents.length).toBe(rendered);
+        fireEvent.click(screen.getByText("Propose"));
+        await screen.findByText(/Source or a visual field/); expect(view.fetch).not.toHaveBeenCalled();
+        expect(view.onChange).not.toHaveBeenCalled();
+    });
+    it("allows a request after explicitly reverting Source and returning to Design", async () => {
+        const view = configure(); await ready(); fireEvent.click(screen.getByText("Open AI assistant"));
+        fireEvent.click(screen.getByText("Source toggle"));
+        fireEvent.input(screen.getByLabelText("Unapplied Source"), { target: { value: "pending" } });
+        fireEvent.click(screen.getByText("Revert")); fireEvent.click(screen.getByText("Source toggle"));
+        await propose();
+        expect(view.fetch).toHaveBeenCalledTimes(1); expect(view.onChange).not.toHaveBeenCalled();
+    });
+    it("maps Registry YAML MIME to the G4 contract while retaining YAML on Apply", async () => {
+        const yaml = "openapi: 3.0.3\ninfo: {title: Original, version: '1'}\npaths: {}\n";
+        const fetch = vi.fn(async (_url, init) => {
+            const body = JSON.parse(init.body);
+            return { ok: true, json: async () => ({ ...body.draft, requestId: body.requestId,
+                status: "applicable", candidate: yaml.replace("Original", "AI YAML"), diff: [], diagnostics: [] }) };
+        });
+        vi.stubGlobal("fetch", fetch); const onChange = vi.fn();
+        render(<OpenApiEditor content={{ content: yaml, contentType: ContentTypes.APPLICATION_YAML }}
+            onChange={onChange} assistantEndpoint="/openapi-assistant/proposals" />);
+        await ready(); fireEvent.click(screen.getByText("Open AI assistant")); await propose();
+        expect(JSON.parse(fetch.mock.calls[0][1].body).draft).toMatchObject({ content: yaml, contentType: "application/yaml" });
+        fireEvent.click(screen.getByText("Apply to draft"));
+        await waitFor(() => expect(onChange).toHaveBeenCalledExactlyOnceWith(yaml.replace("Original", "AI YAML")));
+    });
+    it("rejects Apply if Source was opened after receiving a candidate", async () => {
+        const view = configure(); await ready(); fireEvent.click(screen.getByText("Open AI assistant"));
+        await propose(); fireEvent.click(screen.getByText("Source toggle"));
+        fireEvent.click(screen.getByText("Apply to draft"));
+        await screen.findByText(/Cannot apply/); expect(view.onChange).not.toHaveBeenCalled();
+    });
+});
+
+
+it("uses the selected frontend React version for the AI tests", async () => {
+    const { version } = await import("react");
+    expect(version).toBe(process.env.G5_CONSOLE_TEST === "1" ? "18.3.1" : "19.3.0");
 });

@@ -113,6 +113,8 @@ module.exports = {
       writeToDisk: true,
     },
     proxy: [
+      { context: ["/registry-api/openapi-assistant"], target: "http://127.0.0.1:8082",
+        pathRewrite: { "^/registry-api/openapi-assistant": "" } },
       {
         context: ["/registry-api"],
         target: "http://localhost:8080",

@@ -12,10 +12,11 @@ export interface EmbeddedAppProps {
     apiUrl: string;
     navPrefixPath: string;
     editorsUrl?: string;
+    assistantUrl?: string;
     requestMiddleware?: Middleware[];
 }
 
-export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPrefixPath, editorsUrl, requestMiddleware }) => {
+export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPrefixPath, editorsUrl, assistantUrl, requestMiddleware }) => {
     const config: ConfigService = useConfigService();
     const [ready, setReady] = useState(false);
 
@@ -27,6 +28,7 @@ export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPr
                 url: apiUrl
             },
             ui: {
+                openApiAssistantUrl: assistantUrl,
                 contextPath: "/",
                 navPrefixPath,
                 editorsUrl: editorsUrl || "http://localhost:8888/editors/"
@@ -51,7 +53,7 @@ export const EmbeddedApp: FunctionComponent<EmbeddedAppProps> = ({ apiUrl, navPr
             setReady(true);
         });
         return () => configureEmbeddedRequestMiddleware();
-    }, [apiUrl, navPrefixPath, editorsUrl, requestMiddleware]);
+    }, [apiUrl, navPrefixPath, editorsUrl, assistantUrl, requestMiddleware]);
 
     if (!ready) {
         return (

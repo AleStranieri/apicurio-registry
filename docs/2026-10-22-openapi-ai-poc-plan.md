@@ -1,14 +1,14 @@
 # PoC OpenAPI assistito da AI — piano per Sol e IBM Bob
 
 Piano iniziale: 22 ottobre 2026. Aggiornamento: 23 ottobre 2026.
-G4 implementato e verificato localmente nel commit `795045447`; G5 ancora da implementare.
+G4 implementato e verificato localmente nel commit `795045447`; G5 implementato nel checkout, con verifiche locali documentate sotto.
 L'inventario iniziale sotto resta uno snapshot del 22 ottobre, non lo stato corrente del Mac.
 
 **Punto di ripresa:** [servizio G4 e comandi](../examples/openapi-ai-assistant/README.md),
 [evidenze G4, inclusi i replay negativi](../examples/openapi-ai-assistant/reports/g4-validation.md),
 [decisioni G5 su Axiom, PatternFly e ricerca](2026-10-23-openapi-ai-g5-reuse-decisions.md).
 I 28 test deterministici e gli smoke create/modify di G4 sono passati; restano la matrice
-modello C1/M1/M2, G5 e le verifiche ODH. Gli smoke non sostituiscono queste prove.
+modello C1/M1/M2, la prova browser nel vero host console per G5 e le verifiche ODH. Gli smoke non sostituiscono queste prove.
 
 ## 1. Obiettivo e divisione del lavoro
 
@@ -256,6 +256,34 @@ la scelta solo con un bisogno misurabile di ricerca semantica o memoria tra sess
 - Le funzionalità AI devono poter essere disabilitate e non impedire uso/salvataggio dell'editor quando il servizio non è disponibile.
 
 **Gate G5:** UI standalone e console plugin verificati separatamente; bozza corrente corretta; diff affidabile; nessuna scrittura prima del salvataggio; nessuna sovrascrittura da risposta tardiva.
+
+### Esito locale G5 — 23 ottobre 2026
+
+Implementazione e prove in [g5-validation.md](../examples/openapi-ai-assistant/reports/g5-validation.md).
+Input scelto: `TextArea`/`Button` PatternFly 6.6.1. La release pubblicata Chatbot 6.9.0
+è stata scartata dopo verifica di manifest, sorgenti e CSS: dipendenze PF da 6.7 prerelease,
+peer Monaco 0.56 e componenti/analytics ulteriori rispetto all'input. Non è stata installata
+né compilata nei frontend: nessun PASS di compatibilità o stima del suo bundle finale.
+Nessun codice Axiom copiato; OpenViking resta rinviato.
+
+Invio/applicazione bloccati mentre Source è montato o un campo visuale è ancora pendente.
+Il controllo `.source-form` è specifico di Apitomy 0.2.0 e va rivalidato a ogni upgrade.
+La prop pubblica `initialContent` permette il caricamento, ma resetta la cronologia;
+`OpenAPIEditor` crea un provider interno e non espone un punto di estensione per inserire
+un comando nella stessa istanza. Apply/Restore usano quindi un reload dichiarato, con
+checkpoint esatto pre-AI in memoria e undo/redo nuovo dopo Apply. Non è undo completo.
+
+Test standalone React 19, test console React 18 e build separate eseguiti: risultati
+numerici nel report. Browser standalone con proposte controllate: JSON/YAML, Source,
+hash, Apply senza scrittura, ripristino esatto, undo/redo successivo, salvataggio e ricarica
+verificati. Nessun modello reale usato per G5. Il percorso Verify → Decide → Verification
+Gate include i test frontend; nessun workflow isolato. CI ospitata e browser nel vero
+host console non eseguiti: il gate G5 completo resta aperto per quest'ultima verifica.
+Matrice C1/M1/M2 e ODH restano aperti; gli smoke G4 non li sostituiscono.
+Una successiva prova manuale via pannello ha restituito `applicable` in 60645 ms,
+un tentativo e quattro tool call: [metadati salvati](../examples/openapi-ai-assistant/reports/g5-manual-proposal.json).
+I log non conservano candidato/istruzione: correttezza della modifica e Apply/Save manuali
+non sono attestati. Anche questo smoke non sostituisce la matrice modello.
 
 ## 10. Matrice delle prove e criteri di successo
 

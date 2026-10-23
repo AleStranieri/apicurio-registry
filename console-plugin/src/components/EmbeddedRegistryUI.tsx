@@ -54,6 +54,7 @@ const EmbeddedRegistryUI: React.FC<EmbeddedRegistryUIProps> = ({
     <div className="apicurio-registry-embedded-ui">
       <EmbeddedApp
         apiUrl={apiUrl}
+        assistantUrl={appBaseUrl.includes("localhost:8080") ? "/api/proxy/plugin/apicurio-registry/registry-api/openapi-assistant/proposals" : undefined}
         navPrefixPath={navPrefixPath}
         editorsUrl={editorsUrl}
         requestMiddleware={requestMiddleware}

@@ -1,6 +1,7 @@
 # G5 — Decisioni su Axiom, input messaggi e ricerca
 
-Data: 23 ottobre 2026. Stato: analisi del codice e scelta progettuale; nessuna implementazione G5.
+Data: 23 ottobre 2026. Stato iniziale: analisi del codice e scelta progettuale.
+Aggiornamento: G5 implementato localmente; decisione finale e prove in fondo al documento.
 Documento collegato al [piano principale, sezione 9](2026-10-22-openapi-ai-poc-plan.md#9-g5--integrazione-nelleditor).
 
 ## Decisioni da conservare
@@ -102,3 +103,28 @@ prima di installare o considerarlo una dipendenza del prodotto.
    Applica/rifiuta/ripristina e salvataggio esplicito. Verificare UI e console plugin separatamente.
 5. Registrare nel piano la release scelta, i componenti effettivamente riusati, le prove e
    le limitazioni. Nessun PASS di compatibilità prima delle build e dei test.
+
+
+## Decisione finale implementata
+
+Valutata la release pubblicata `@patternfly/chatbot@6.9.0`, tarball ufficiale
+[chatbot-6.9.0.tgz](https://registry.npmjs.org/@patternfly/chatbot/-/chatbot-6.9.0.tgz),
+SHA-256 `263ae952c5193e85bad7690a8e8317a1c82cbbbcdb9ed36534f6ff9dc053bad8`.
+Letti `package.json`, `src/MessageBar/MessageBar.tsx`, dichiarazioni e JS ESM,
+`dist/css/main.css` (119730 byte). I peer React/DOM ammettono 18/19, ma le dipendenze
+PF partono da `^6.7.0-prerelease.*`, oltre a peer Monaco `^0.56.0` (qui 0.57.0).
+Il pacchetto include analytics e markdown; MessageBar importa anche allegati/menu/microfono.
+La dimensione del tarball scompattato è 14317761 byte: non è una misura del bundle
+finale né del costo trasferito di MessageBar. Il CSS è globale `pf-chatbot`, non lo
+stylesheet già confinato dell'editor.
+
+Scartato per il costo di introdurre un'altra linea PF e dipendenze per un solo input.
+Non installato o compilato nei due frontend: la compatibilità della release non è
+certificata. Scelti `TextArea` e `Button` già installati, verificati con test/render React
+18.3.1 e 19.3.0 e build Webpack/Vite separate, mantenendo PF 6.6.1.
+Nessun sorgente Axiom copiato: il controller locale `/proposals` è più piccolo del ponte
+sessioni/SSE. OpenViking resta fuori dalle dipendenze.
+
+Il limite undo e il blocco Source sono effettivi, non ipotesi: vedere
+[report G5](../examples/openapi-ai-assistant/reports/g5-validation.md) e README aggiornato.
+Restano il browser del vero host console, la matrice modello e ODH.

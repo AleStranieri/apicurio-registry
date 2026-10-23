@@ -1,0 +1,13 @@
+{
+  "results": [
+    "json: Source blocked/current draft hashed; Apply draft-only; history reset; new undo/redo; exact restore; explicit save/reload",
+    "yaml: Source blocked/current draft hashed; Apply draft-only; history reset; new undo/redo; exact restore; explicit save/reload",
+    "Existing ai-poc/inventory-api unchanged; no page errors"
+  ],
+  "errors": [],
+  "requestCount": 4,
+  "created": [
+    "g5-json-1792765663742",
+    "g5-yaml-1792765667927"
+  ]
+}

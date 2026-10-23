@@ -18,6 +18,13 @@ export default defineConfig({
     }],
     resolve: {
         alias: {
+            ...(process.env.G5_CONSOLE_TEST === "1" ? {
+                "@testing-library/react": fileURLToPath(new URL("../../console-plugin/node_modules/@testing-library/react", import.meta.url)),
+                "react": fileURLToPath(new URL("../../console-plugin/node_modules/react", import.meta.url)),
+                "react-dom": fileURLToPath(new URL("../../console-plugin/node_modules/react-dom", import.meta.url)),
+                "@patternfly/react-core": fileURLToPath(new URL("../../console-plugin/node_modules/@patternfly/react-core", import.meta.url)),
+                "@patternfly/react-icons": fileURLToPath(new URL("../../console-plugin/node_modules/@patternfly/react-icons", import.meta.url))
+            } : {}),
             "@apitomy/openapi-editor-styles": fileURLToPath(new URL("./node_modules/@apitomy/openapi-editor/dist/openapi-editor.css", import.meta.url)),
             "@microsoft/kiota-abstractions": fileURLToPath(new URL("./node_modules/@microsoft/kiota-abstractions", import.meta.url)),
             "@microsoft/kiota-http-fetchlibrary": fileURLToPath(new URL("./node_modules/@microsoft/kiota-http-fetchlibrary", import.meta.url)),
@@ -28,6 +35,7 @@ export default defineConfig({
         }
     },
     server: {
+        proxy: { "/openapi-assistant": { target: "http://127.0.0.1:8082", rewrite: path => path.replace(/^\/openapi-assistant/, "") } },
         port: PORT
     },
     test: {

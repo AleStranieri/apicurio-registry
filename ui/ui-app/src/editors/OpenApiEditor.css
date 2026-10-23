@@ -31,3 +31,27 @@
     border: none;
     width: 100%;
 }
+
+.registry-openapi-editor__surface {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+.registry-openapi-editor__surface > * {
+    flex: 1;
+    min-width: 0;
+}
+
+.registry-openapi-ai-panel {
+    flex-shrink: 0;
+    max-height: 40vh;
+    overflow: auto;
+    padding: 1rem;
+    border-bottom: 1px solid var(--pf-t--global--border--color--default);
+}
+
+.registry-openapi-ai-panel pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
