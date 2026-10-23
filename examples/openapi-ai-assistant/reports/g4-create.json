@@ -1,0 +1,122 @@
+{
+  "request": {
+    "requestId": "a9867b38-f807-48c3-9e5e-70d371037f61",
+    "mode": "create",
+    "instruction": "Create a minimal OpenAPI 3.0.3 inventory API with GET /items. Return the complete JSON document.",
+    "draft": {
+      "documentId": "g4-smoke",
+      "revision": 7,
+      "contentType": "application/json",
+      "content": "",
+      "baseHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "response": {
+    "requestId": "a9867b38-f807-48c3-9e5e-70d371037f61",
+    "status": "applicable",
+    "documentId": "g4-smoke",
+    "revision": 7,
+    "baseHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate": "{\n  \"openapi\": \"3.0.3\",\n  \"info\": {\n    \"title\": \"Inventory API\",\n    \"version\": \"1.0.0\"\n  },\n  \"paths\": {\n    \"/items\": {\n      \"get\": {\n        \"summary\": \"List all items\",\n        \"responses\": {\n          \"200\": {\n            \"description\": \"A list of items\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"type\": \"array\",\n                  \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                      \"id\": {\n                        \"type\": \"integer\"\n                      },\n                      \"name\": {\n                        \"type\": \"string\"\n                      },\n                      \"quantity\": {\n                        \"type\": \"integer\"\n                      }\n                    },\n                    \"required\": [\"id\", \"name\", \"quantity\"]\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+    "diff": [
+      {
+        "kind": "added",
+        "path": "",
+        "before": null,
+        "after": {
+          "openapi": "3.0.3",
+          "info": {
+            "title": "Inventory API",
+            "version": "1.0.0"
+          },
+          "paths": {
+            "/items": {
+              "get": {
+                "summary": "List all items",
+                "responses": {
+                  "200": {
+                    "description": "A list of items",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "array",
+                          "items": {
+                            "required": [
+                              "id",
+                              "name",
+                              "quantity"
+                            ],
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "quantity": {
+                                "type": "integer"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "schemaDifferences": []
+      }
+    ],
+    "diagnostics": [],
+    "run": {
+      "model": "granite4:latest",
+      "toolCallCount": 0,
+      "attemptCount": 1,
+      "elapsedMs": 4537,
+      "modelToolCallCount": 0,
+      "validationToolCallCount": 0
+    }
+  },
+  "registryBefore": {
+    "count": 1,
+    "versions": [
+      {
+        "createdOn": "2026-10-23T10:02:01Z",
+        "owner": "",
+        "artifactType": "OPENAPI",
+        "state": "DRAFT",
+        "globalId": 8,
+        "version": "1",
+        "contentId": 14,
+        "artifactId": "inventory-api",
+        "groupId": "ai-poc",
+        "modifiedBy": "",
+        "modifiedOn": "2026-10-23T10:02:01Z"
+      }
+    ]
+  },
+  "registryAfter": {
+    "count": 1,
+    "versions": [
+      {
+        "createdOn": "2026-10-23T10:02:01Z",
+        "owner": "",
+        "artifactType": "OPENAPI",
+        "state": "DRAFT",
+        "globalId": 8,
+        "version": "1",
+        "contentId": 14,
+        "artifactId": "inventory-api",
+        "groupId": "ai-poc",
+        "modifiedBy": "",
+        "modifiedOn": "2026-10-23T10:02:01Z"
+      }
+    ]
+  },
+  "versionsUnchanged": true,
+  "elapsedMs": 4561
+}

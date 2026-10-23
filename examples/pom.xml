@@ -31,6 +31,7 @@
   </licenses>
 
   <modules>
+    <module>openapi-ai-assistant/service</module>
     <module>simple-avro</module>
     <module>simple-json</module>
     <module>confluent-serdes</module>

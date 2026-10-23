@@ -447,6 +447,35 @@ jobs:
     uses: ./.github/workflows/verify-console-plugin.yaml
     secrets: inherit
 
+  openapi-assistant:
+    name: OpenAPI Assistant
+    needs: [decide]
+    if: needs.decide.outputs.run-openapi-assistant == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Restore Maven cache
+        uses: ./.github/actions/setup-maven-cache
+
+      - name: Verify assistant with mock LLM and MCP
+        run: ./mvnw -Pexamples -pl examples/openapi-ai-assistant/service -am verify --no-transfer-progress -T1
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: openapi-assistant-tests
+          path: examples/openapi-ai-assistant/service/target/surefire-reports/
+
   integration-tests:
     name: Integration Tests
     needs: [decide, build-java]
@@ -503,7 +532,7 @@ jobs:
           || needs.decide.outputs.lifecycle-ready == 'true')
     needs: [decide, lint-and-validate, build-java, build-ui, unit-tests,
             cli-verify, ard-conformance, go-sdk-freshness, sdk, console-plugin,
-            integration-tests, extras, operator]
+            integration-tests, extras, operator, openapi-assistant]
     runs-on: ubuntu-latest
     timeout-minutes: 10  # longest green run, week to 2026-10-01: 0 min
     steps:

@@ -1,0 +1,75 @@
+{
+  "request": {
+    "requestId": "5760a81c-0802-4c31-bb0f-b07f0cf691d4",
+    "mode": "modify",
+    "instruction": "Change only info.title to Inventory Assistant G4. Return the complete JSON document.",
+    "draft": {
+      "documentId": "g4-smoke",
+      "revision": 7,
+      "contentType": "application/json",
+      "content": "{\n  \"openapi\": \"3.0.3\",\n  \"info\": {\n    \"title\": \"Inventory API\",\n    \"version\": \"1.0.0\",\n    \"description\": \"Simple inventory management API used as a PoC fixture for G2 model validation.\"\n  },\n  \"paths\": {\n    \"/items\": {\n      \"get\": {\n        \"operationId\": \"listItems\",\n        \"summary\": \"List all inventory items\",\n        \"responses\": {\n          \"200\": {\n            \"description\": \"A list of items\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"type\": \"array\",\n                  \"items\": {\n                    \"$ref\": \"#/components/schemas/Item\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      },\n      \"post\": {\n        \"operationId\": \"createItem\",\n        \"summary\": \"Create a new inventory item\",\n        \"requestBody\": {\n          \"required\": true,\n          \"content\": {\n            \"application/json\": {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/ItemCreate\"\n              }\n            }\n          }\n        },\n        \"responses\": {\n          \"201\": {\n            \"description\": \"Item created\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/Item\"\n                }\n              }\n            }\n          },\n          \"400\": {\n            \"description\": \"Invalid input\"\n          }\n        }\n      }\n    },\n    \"/items/{id}\": {\n      \"get\": {\n        \"operationId\": \"getItem\",\n        \"summary\": \"Get a single inventory item by ID\",\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n            \"schema\": {\n              \"type\": \"string\"\n            }\n          }\n        ],\n        \"responses\": {\n          \"200\": {\n            \"description\": \"Item found\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/Item\"\n                }\n              }\n            }\n          },\n          \"404\": {\n            \"description\": \"Item not found\"\n          }\n        }\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"Item\": {\n        \"type\": \"object\",\n        \"required\": [\"id\", \"name\", \"quantity\"],\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\",\n            \"description\": \"Unique identifier for the item\"\n          },\n          \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Name of the inventory item\"\n          },\n          \"quantity\": {\n            \"type\": \"integer\",\n            \"minimum\": 0,\n            \"description\": \"Current stock quantity\"\n          },\n          \"price\": {\n            \"type\": \"number\",\n            \"format\": \"double\",\n            \"description\": \"Unit price in EUR\"\n          }\n        }\n      },\n      \"ItemCreate\": {\n        \"type\": \"object\",\n        \"required\": [\"name\", \"quantity\"],\n        \"properties\": {\n          \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Name of the inventory item\"\n          },\n          \"quantity\": {\n            \"type\": \"integer\",\n            \"minimum\": 0,\n            \"description\": \"Initial stock quantity\"\n          },\n          \"price\": {\n            \"type\": \"number\",\n            \"format\": \"double\",\n            \"description\": \"Unit price in EUR\"\n          }\n        }\n      }\n    }\n  }\n}\n",
+      "baseHash": "ed8686281120191938494848928f7074050a83f5f0066afe7d15870b80e6a8e3"
+    },
+    "registryContext": {
+      "groupId": "ai-poc",
+      "artifactId": "inventory-api",
+      "version": "1"
+    }
+  },
+  "response": {
+    "requestId": "5760a81c-0802-4c31-bb0f-b07f0cf691d4",
+    "status": "applicable",
+    "documentId": "g4-smoke",
+    "revision": 7,
+    "baseHash": "ed8686281120191938494848928f7074050a83f5f0066afe7d15870b80e6a8e3",
+    "candidate": "{\n  \"openapi\": \"3.0.3\",\n  \"info\": {\n    \"title\": \"Inventory API\",\n    \"version\": \"1.0.0\",\n    \"description\": \"Simple inventory management API used as a PoC fixture for G2 model validation.\"\n  },\n  \"paths\": {\n    \"/items\": {\n      \"get\": {\n        \"operationId\": \"listItems\",\n        \"summary\": \"List all inventory items\",\n        \"responses\": {\n          \"200\": {\n            \"description\": \"A list of items\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"type\": \"array\",\n                  \"items\": {\n                    \"$ref\": \"#/components/schemas/Item\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      },\n      \"post\": {\n        \"operationId\": \"createItem\",\n        \"summary\": \"Create a new inventory item\",\n        \"requestBody\": {\n          \"required\": true,\n          \"content\": {\n            \"application/json\": {\n              \"schema\": {\n                \"$ref\": \"#/components/schemas/ItemCreate\"\n              }\n            }\n          }\n        },\n        \"responses\": {\n          \"201\": {\n            \"description\": \"Item created\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/Item\"\n                }\n              }\n            }\n          },\n          \"400\": {\n            \"description\": \"Invalid input\"\n          }\n        }\n      }\n    },\n    \"/items/{id}\": {\n      \"get\": {\n        \"operationId\": \"getItem\",\n        \"summary\": \"Get a single inventory item by ID\",\n        \"parameters\": [\n          {\n            \"name\": \"id\",\n            \"in\": \"path\",\n            \"required\": true,\n            \"schema\": {\n              \"type\": \"string\"\n            }\n          }\n        ],\n        \"responses\": {\n          \"200\": {\n            \"description\": \"Item found\",\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/Item\"\n                }\n              }\n            }\n          },\n          \"404\": {\n            \"description\": \"Item not found\"\n          }\n        }\n      }\n    }\n  },\n  \"components\": {\n    \"schemas\": {\n      \"Item\": {\n        \"type\": \"object\",\n        \"required\": [\"id\", \"name\", \"quantity\"],\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\",\n            \"description\": \"Unique identifier for the item\"\n          },\n          \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Name of the inventory item\"\n          },\n          \"quantity\": {\n            \"type\": \"integer\",\n            \"minimum\": 0,\n            \"description\": \"Current stock quantity\"\n          },\n          \"price\": {\n            \"type\": \"number\",\n            \"format\": \"double\",\n            \"description\": \"Unit price in EUR\"\n          }\n        }\n      },\n      \"ItemCreate\": {\n        \"type\": \"object\",\n        \"required\": [\"name\", \"quantity\"],\n        \"properties\": {\n          \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Name of the inventory item\"\n          },\n          \"quantity\": {\n            \"type\": \"integer\",\n            \"minimum\": 0,\n            \"description\": \"Initial stock quantity\"\n          },\n          \"price\": {\n            \"type\": \"number\",\n            \"format\": \"double\",\n            \"description\": \"Unit price in EUR\"\n          }\n        }\n      }\n    }\n  }\n}",
+    "diff": [],
+    "diagnostics": [],
+    "run": {
+      "model": "granite4:latest",
+      "toolCallCount": 4,
+      "attemptCount": 1,
+      "elapsedMs": 57877,
+      "modelToolCallCount": 3,
+      "validationToolCallCount": 1
+    }
+  },
+  "registryBefore": {
+    "count": 1,
+    "versions": [
+      {
+        "createdOn": "2026-10-23T10:02:01Z",
+        "owner": "",
+        "artifactType": "OPENAPI",
+        "state": "DRAFT",
+        "globalId": 8,
+        "version": "1",
+        "contentId": 14,
+        "artifactId": "inventory-api",
+        "groupId": "ai-poc",
+        "modifiedBy": "",
+        "modifiedOn": "2026-10-23T10:02:01Z"
+      }
+    ]
+  },
+  "registryAfter": {
+    "count": 1,
+    "versions": [
+      {
+        "createdOn": "2026-10-23T10:02:01Z",
+        "owner": "",
+        "artifactType": "OPENAPI",
+        "state": "DRAFT",
+        "globalId": 8,
+        "version": "1",
+        "contentId": 14,
+        "artifactId": "inventory-api",
+        "groupId": "ai-poc",
+        "modifiedBy": "",
+        "modifiedOn": "2026-10-23T10:02:01Z"
+      }
+    ]
+  },
+  "versionsUnchanged": true,
+  "elapsedMs": 58119
+}
