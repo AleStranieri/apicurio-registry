@@ -148,3 +148,8 @@ restrictions still apply: the upstream pipeline currently gates only the `Apicur
 `main`/`3.3.x`; this local fork branch has no hosted CI result from this work.
 
 See `reports/g4-validation.md` for commands, results, limitations and test-quality review.
+
+G5 planning: [main plan](../../docs/2026-10-22-openapi-ai-poc-plan.md) and
+[Axiom/PatternFly reuse decisions](../../docs/2026-10-23-openapi-ai-g5-reuse-decisions.md).
+Prefer the official PatternFly input if its selected release passes both frontend builds;
+Axiom reuse is optional and OpenViking remains deferred.

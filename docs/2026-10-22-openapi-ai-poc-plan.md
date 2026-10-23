@@ -1,6 +1,14 @@
 # PoC OpenAPI assistito da AI — piano per Sol e IBM Bob
 
-Data: 22 ottobre 2026. Stato: piano, nessun componente installato da questa attività.
+Piano iniziale: 22 ottobre 2026. Aggiornamento: 23 ottobre 2026.
+G4 implementato e verificato localmente nel commit `795045447`; G5 ancora da implementare.
+L'inventario iniziale sotto resta uno snapshot del 22 ottobre, non lo stato corrente del Mac.
+
+**Punto di ripresa:** [servizio G4 e comandi](../examples/openapi-ai-assistant/README.md),
+[evidenze G4, inclusi i replay negativi](../examples/openapi-ai-assistant/reports/g4-validation.md),
+[decisioni G5 su Axiom, PatternFly e ricerca](2026-10-23-openapi-ai-g5-reuse-decisions.md).
+I 28 test deterministici e gli smoke create/modify di G4 sono passati; restano la matrice
+modello C1/M1/M2, G5 e le verifiche ODH. Gli smoke non sostituiscono queste prove.
 
 ## 1. Obiettivo e divisione del lavoro
 
@@ -142,6 +150,14 @@ Usare un gruppo di test dedicato e fixture versionate. Nessun test deve modifica
 
 ## 8. G4 — Servizio assistente e contratto delle proposte
 
+**Implementazione disponibile:** `examples/openapi-ai-assistant/service/`, commit `795045447`.
+Il [README del servizio](../examples/openapi-ai-assistant/README.md) documenta contratto, limiti,
+build e replay; il [report](../examples/openapi-ai-assistant/reports/g4-validation.md) conserva
+risultati positivi e negativi. Usare questo contratto come base del client G5.
+Il diff include confronto strutturale dell'AST OpenAPI e `Difference`/`DiffType` per Schema
+Objects: questi tipi Apitomy appartengono al motore JSON Schema e non provano da soli la
+compatibilità completa di un'API OpenAPI.
+
 Collocazione proposta: `examples/openapi-ai-assistant/`, con servizio Quarkus/LangChain4j, script e fixture. Mantenere separato il servizio dal core Registry. Usare dipendenze con versioni compatibili e verificarne le API nel sorgente/documentazione prima di configurarle.
 
 Quarkus LangChain4j supporta il client MCP, incluso stdio. [Documentazione MCP](https://docs.quarkiverse.io/quarkus-langchain4j/dev/mcp.html).
@@ -195,7 +211,26 @@ File da valutare/modificare, seguendo i pattern effettivi del checkout:
 - `console-plugin/src/utils/console-proxy-middleware.ts`, configurazioni proxy Vite/Webpack e manifest del plugin: rotta del servizio assistente, solo se necessaria.
 - `console-plugin/tests/`: prova browser AI complementare a `verify-apitomy-poc.cjs`.
 
-Usare PatternFly Chatbot se la release scelta è compatibile con PatternFly 6.6.1 e con React 18 del plugin/React 19 della UI standalone. Verificare peer dependency e bundle; non aggiornare globalmente React/PatternFly per aggiungere il pannello. [PatternFly Chatbot](https://www.patternfly.org/patternfly-ai/chatbot/about-chatbot).
+**Scelta per l'input:** valutare prima `MessageBar` dell'estensione ufficiale
+`@patternfly/chatbot`. Verificare una release pubblicata con PatternFly 6.6.1 e con React 18
+del plugin/React 19 della UI standalone: peer dependency, API effettive, CSS, bundle e build
+in entrambi gli ambienti. Il supporto dichiarato nel ramo `main` non è una verifica di una
+release installata. Non aggiornare globalmente React/PatternFly per aggiungere il pannello.
+Se il costo del pacchetto non è giustificato per il solo input, usare `TextArea` e `Button`
+di PatternFly già presenti. [Sorgente MessageBar](https://github.com/patternfly/chatbot/blob/main/packages/module/src/MessageBar/MessageBar.tsx).
+
+**Riuso Axiom:** il repository è stato esaminato al commit
+`97b06f36446cdb7afcdb7935e52138bd3a241fa7`. Il riuso non è un requisito: adattare codice solo
+se riduce complessità e manutenzione rispetto ai componenti ufficiali. Il pannello completo
+Axiom dipende da sessioni/SSE, permessi e subagenti; non è un componente già compatibile con
+`POST /proposals`. L'input Axiom è un riferimento alternativo da confrontare, non la scelta
+predefinita. Validazione e Apply Axiom sono riferimenti progettuali: l'applicazione undoable
+alla bozza OpenAPI richiede le API dell'editor Apitomy. Dettagli e fonti nella
+[nota di decisione G5](2026-10-23-openapi-ai-g5-reuse-decisions.md).
+
+**Ricerca nel codice:** per G5 mantenere ricerca locale nei checkout. OpenViking è stato
+valutato tramite documentazione, ma non installato; non è una dipendenza di G5. Riaprire
+la scelta solo con un bisogno misurabile di ricerca semantica o memoria tra sessioni.
 
 **Flusso utente:**
 
@@ -212,6 +247,11 @@ Usare PatternFly Chatbot se la release scelta è compatibile con PatternFly 6.6.
 - Preferire un'applicazione undoable attraverso API pubbliche. Se richiede un'estensione upstream, documentarla. Un eventuale remount deve dichiarare la perdita della cronologia precedente e fornire almeno il ripristino della bozza pre-AI; non sostenere che undo/redo completo è preservato senza test.
 - Una modifica manuale mentre il modello risponde invalida il candidato tramite revisione/hash. Controllare sia alla ricezione sia al clic “Applica”. Cambiare artefatto o editor invalida le richieste pendenti.
 - Gestire campi visuali non ancora confermati, annullamento, doppio clic, risposte fuori ordine e timeout senza perdere il lavoro.
+- Separare il componente input dal controller della proposta: chiamata HTTP, errori, requestId,
+  identità/revisione/hash e applicazione restano responsabilità del client G5. Conservare
+  l'istruzione in caso di errore. Il pulsante Stop del componente non cancella automaticamente
+  il lavoro del servizio: G4 espone solo `POST /proposals`. In G5 annullare l'attesa e invalidare
+  la risposta tardiva; dichiarare separatamente l'eventuale futura cancellazione lato server.
 - Mantenere YAML come YAML e JSON come JSON. Documentare eventuale riformattazione/perdita commenti, già possibile nell'editor basato su oggetti.
 - Le funzionalità AI devono poter essere disabilitate e non impedire uso/salvataggio dell'editor quando il servizio non è disponibile.
 
