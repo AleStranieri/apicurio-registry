@@ -24,6 +24,34 @@ images:
   legacy_ui: docker.io/apicurio/apicurio-registry-ui:3.3.1
   digests: null # NOT VERIFIED
   arm64: null # NOT VERIFIED
-model: null # NOT IMPLEMENTED / NOT VERIFIED
-llm_runtime: null # NOT VERIFIED
-odh: null # NOT VERIFIED
+model:
+  name: granite4:latest
+  family: IBM Granite 4.0 MoE
+  parameters: 3.4B
+  quantization: Q4_K_M
+  bpw: 4.93
+  context_length: 131072
+  architecture: granite
+  capabilities: [completion, tools]
+  license: Apache-2.0
+  ollama_id: 4235724a127c
+  size_bytes: 3732427242
+  size_vram_bytes: 3732427242
+  source: https://ollama.com/library/granite4
+llm_runtime:
+  name: ollama
+  version: 0.40.9
+  backend: llama.cpp (Metal)
+  endpoint: "http://127.0.0.1:11434/v1"
+  gpu: "Apple M1 Pro (MTLGPUFamilyApple7, MTLGPUFamilyMetal4)"
+  gpu_total_mib: 25559
+  gpu_layers_offloaded: "41/41"
+  kv_cache_type: q8_0
+  flash_attention: true
+  model_weights_gpu_mib: 1998.84
+  kv_cache_gpu_mib: 1360.00
+  compute_buffer_gpu_mib: 200.68
+  model_weights_cpu_mib: 200.98
+  rss_total_mib: 3490
+  vram_reported_gib: 3.48
+odh: "BLOCKED (amd64-only images) — see docs/bob/odh-feasibility.md"
