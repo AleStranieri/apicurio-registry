@@ -4,7 +4,7 @@ import { webcrypto } from "node:crypto";
 import { useState } from "react";
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { OpenApiEditor } from "./OpenApiEditor";
 import { ContentTypes } from "@models/ContentTypes";
 import { openApiDocument, sameOpenApiDocument, serializeOpenApiDocument } from "./OpenApiEditorContent";
@@ -156,6 +156,55 @@ describe("AI editor integration", () => {
         fireEvent.click(screen.getByText("Propose"));
         await screen.findByText("Apply to draft");
     }
+    it("opens and closes the side panel without remounting the editor or losing pending input", async () => {
+        const view = configure(); await ready();
+        const editor = screen.getByTestId("initial-document");
+        const field = screen.getByLabelText("Uncommitted visual field");
+        fireEvent.input(field, { target: { value: "Still editing" } });
+        const toggle = screen.getByRole("button", { name: "Open AI assistant" });
+        expect(toggle).toHaveAttribute("aria-expanded", "false");
+        fireEvent.click(toggle);
+        expect(screen.getByRole("heading", { name: "AI assistant" })).toBeInTheDocument();
+        expect(toggle).toHaveAttribute("aria-expanded", "true");
+        expect(screen.getByTestId("initial-document")).toBe(editor);
+        expect(field).toHaveValue("Still editing");
+        fireEvent.click(screen.getByRole("button", { name: "Close assistant panel" }));
+        expect(toggle).toHaveFocus();
+        expect(toggle).toHaveAttribute("aria-expanded", "false");
+        expect(screen.queryByLabelText("Assistant instruction")).not.toBeInTheDocument();
+        expect(screen.getByTestId("initial-document")).toBe(editor);
+        expect(field).toHaveValue("Still editing");
+        expect(view.onChange).not.toHaveBeenCalled();
+        fireEvent.click(toggle);
+        fireEvent.keyDown(screen.getByLabelText("Assistant instruction"), { key: "Escape" });
+        expect(toggle).toHaveFocus();
+        expect(screen.queryByLabelText("Assistant instruction")).not.toBeInTheDocument();
+    });
+    it("closing the drawer aborts waiting and ignores a response delivered after reopening", async () => {
+        const view = configure(); await ready();
+        let resolve!: (value: { ok: boolean; json: () => Promise<any> }) => void;
+        let request: any;
+        let signal: AbortSignal | undefined;
+        view.fetch.mockImplementation((_url, init) => {
+            request = JSON.parse(init.body); signal = init.signal;
+            return new Promise(done => { resolve = done; });
+        });
+        fireEvent.click(screen.getByText("Open AI assistant"));
+        fireEvent.change(screen.getByLabelText("Assistant instruction"), { target: { value: "Change title" } });
+        fireEvent.click(screen.getByText("Propose"));
+        await waitFor(() => expect(view.fetch).toHaveBeenCalledTimes(1));
+        fireEvent.click(screen.getByRole("button", { name: "Close assistant panel" }));
+        expect(signal?.aborted).toBe(true);
+        fireEvent.click(screen.getByText("Open AI assistant"));
+        await act(async () => {
+            resolve({ ok: true, json: async () => ({ ...request.draft, requestId: request.requestId,
+                status: "applicable", candidate: original.replace("Original", "Too late"), diff: [], diagnostics: [] }) });
+        });
+        await waitFor(() => expect(screen.getByLabelText("Assistant instruction")).toBeEnabled());
+        expect(screen.queryByText("Apply to draft")).not.toBeInTheDocument();
+        expect(screen.getByTestId("initial-document")).toHaveTextContent("Original");
+        expect(view.onChange).not.toHaveBeenCalled();
+    });
     it("applies only on explicit acceptance and restores exact pre-AI text", async () => {
         const view = configure(); await ready();
         fireEvent.click(screen.getByText("Open AI assistant"));

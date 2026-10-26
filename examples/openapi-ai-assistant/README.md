@@ -156,7 +156,10 @@ Axiom reuse is optional and OpenViking remains deferred.
 
 ## G5 editor panel
 
-The shared OpenAPI editor now has an optional proposal panel. It uses existing PatternFly
+The shared OpenAPI editor now has an optional proposal panel on the right.
+The panel is resizable on desktop and overlays the editor on narrow screens. Close it
+with the header button, the toolbar toggle or Escape; closing cancels the browser wait
+and invalidates late results. Opening/closing preserves the mounted editor. It uses existing PatternFly
 6.6.1 `TextArea`/`Button`; no Chatbot, Axiom or OpenViking runtime dependency is added.
 Set `ApicurioRegistryConfig.ui.openApiAssistantUrl = "/openapi-assistant/proposals"` in the
 standalone UI's local `config.js` to enable the **Open AI assistant** button. Omit the setting
@@ -171,6 +174,11 @@ route, which targets G4 on 8082. Console writes include the CSRF cookie header. 
 the local service proxy documented in `console-plugin/APITOMY-POC.md`; it does not add a
 cluster service or an authenticated production deployment. Other Registry instances have
 no assistant configured. Pass no `assistantUrl` to disable the embedded panel.
+
+Apitomy 0.2.0's schema Design form displays title, type and description, but does not
+render a list of schema properties. To inspect an added property such as `pippo`, select
+the schema and use Source; absence from the Design form does not establish that the
+property is missing from the draft.
 
 Source is blocked for both Propose and Apply, even when clean. Save or revert it with its
 own toolbar, then return to Design. Uncommitted visual input also blocks requests. The
@@ -221,3 +229,5 @@ It reads and checks `ai-poc/inventory-api` unchanged. No model is contacted. Set
 to run against the host plugin; that host-browser run has not been performed here.
 Local screenshots/report go to ignored `console-plugin/.runtime/openapi-ai`.
 See [G5 evidence and limitations](reports/g5-validation.md).
+
+Side-panel layout follow-up: [26 October validation](reports/g5-side-panel-validation.md).

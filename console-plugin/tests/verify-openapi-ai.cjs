@@ -52,6 +52,26 @@ async function api(route, init) {
             await page.goto(ui + id + '/versions/1/editor');
             await title().waitFor({ timeout: 60000 }); await waitTitle('Original');
             assert(await save().isDisabled());
+            const editorBefore = await page.locator('.apitomy-openapi-editor').boundingBox();
+            await title().evaluate(el => el.dataset.assistantLayoutMarker = 'original');
+            await page.getByRole('button', { name: 'Open AI assistant', exact: true }).click();
+            await page.getByRole('textbox', { name: 'Assistant instruction' }).waitFor();
+            await page.waitForFunction(() => {
+                const editor = document.querySelector('.apitomy-openapi-editor').getBoundingClientRect();
+                const panel = document.querySelector('.registry-openapi-editor__assistant').getBoundingClientRect();
+                return panel.x >= editor.right - 1 && panel.right <= innerWidth + 1;
+            });
+            const editorAfter = await page.locator('.apitomy-openapi-editor').boundingBox();
+            assert(Math.abs(editorAfter.y - editorBefore.y) < 2, 'opening the assistant must not push the editor down');
+            assert(editorAfter.height > 400 && editorAfter.y + editorAfter.height <= 1101, 'editor fits the viewport');
+            const panel = page.locator('.registry-openapi-editor__assistant');
+            const initialWidth = (await panel.boundingBox()).width;
+            const splitter = page.getByRole('separator', { name: 'Resize AI assistant' });
+            await splitter.focus(); await splitter.press('ArrowLeft');
+            await page.waitForFunction(width => document.querySelector('.registry-openapi-editor__assistant').getBoundingClientRect().width > width, initialWidth);
+            await page.getByRole('button', { name: 'Close assistant panel', exact: true }).click();
+            assert.equal(await title().getAttribute('data-assistant-layout-marker'), 'original', 'closing preserves the mounted editor');
+            assert(await page.getByRole('button', { name: 'Open AI assistant', exact: true }).evaluate(el => el === document.activeElement));
             await page.getByRole('button', { name: 'Open AI assistant', exact: true }).click();
             await page.getByRole('textbox', { name: 'Assistant instruction' }).fill('Change title');
             await page.locator('#source-mode').click();
@@ -96,6 +116,21 @@ async function api(route, init) {
         assert.equal(await (await api('/groups/ai-poc/artifacts/inventory-api/versions/1/content')).text(), fixtureBefore);
         assert.deepEqual(errors, []);
         check('Existing ai-poc/inventory-api unchanged; no page errors');
+        await page.getByRole('button', { name: 'Open AI assistant', exact: true }).click();
+        await page.getByRole('textbox', { name: 'Assistant instruction' }).waitFor();
+        await page.screenshot({ path: path.join(out, 'g5-side-panel-desktop.png'), fullPage: true });
+        await page.getByRole('textbox', { name: 'Assistant instruction' }).press('Escape');
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.getByRole('button', { name: 'Open AI assistant', exact: true }).click();
+        await page.waitForFunction(() => {
+            const panel = document.querySelector('.registry-openapi-editor__assistant').getBoundingClientRect();
+            return panel.x >= -1 && panel.right <= innerWidth + 1;
+        });
+        await page.screenshot({ path: path.join(out, 'g5-side-panel-narrow.png'), fullPage: true });
+        await page.getByRole('textbox', { name: 'Assistant instruction' }).press('Escape');
+        assert(await page.getByRole('button', { name: 'Open AI assistant', exact: true }).evaluate(el => el === document.activeElement));
+        check('Side panel: desktop alignment and keyboard resize; mounted editor preserved; Escape/focus return; narrow overlay fits');
+        await page.setViewportSize({ width: 1600, height: 1100 });
         await page.screenshot({ path: path.join(out, 'g5-final.png'), fullPage: true });
     } catch (error) {
         await page.screenshot({ path: path.join(out, 'g5-failure.png'), fullPage: true });

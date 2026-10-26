@@ -257,6 +257,14 @@ la scelta solo con un bisogno misurabile di ricerca semantica o memoria tra sess
 
 **Gate G5:** UI standalone e console plugin verificati separatamente; bozza corrente corretta; diff affidabile; nessuna scrittura prima del salvataggio; nessuna sovrascrittura da risposta tardiva.
 
+### Layout laterale G5 — 26 ottobre 2026
+
+Su richiesta dell'utente, il form sopra l'editor è stato sostituito con un Drawer PatternFly
+6.6.1 a destra, ridimensionabile e con scroll separato. Apertura/chiusura conservano
+l'istanza editor; chiusura/Escape invalidano le richieste pendenti. Su schermi stretti il
+pannello si sovrappone all'editor. Nessun codice Axiom o nuova dipendenza.
+[Verifiche ed evidenze](../examples/openapi-ai-assistant/reports/g5-side-panel-validation.md).
+
 ### Esito locale G5 — 23 ottobre 2026
 
 Implementazione e prove in [g5-validation.md](../examples/openapi-ai-assistant/reports/g5-validation.md).

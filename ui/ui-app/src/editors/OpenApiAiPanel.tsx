@@ -27,13 +27,20 @@ export function OpenApiAiPanel(props: { endpoint: string; read: () => AssistantD
     useEffect(() => () => client.cancel(), [client]);
     useEffect(() => { client.cancel(); }, [client, props.invalidation]);
     return <aside aria-label="OpenAPI AI assistant" className="registry-openapi-ai-panel">
-        <p>Local AI preview. Apply changes the draft only; use Registry Save to persist.</p>
-        <p>Apply and Restore reset editor undo history. Restore returns the exact pre-AI draft and replaces subsequent edits.</p>
-        <p>Save or revert Source, then return to Design before requesting or applying. Finish visual fields first.</p>
-        <TextArea aria-label="Assistant instruction" value={instruction} isDisabled={state.pending}
+        <p>Describe a change, then review the proposal before applying it to your draft.</p>
+        <details className="registry-openapi-ai-panel__help">
+            <summary>Before you apply</summary>
+            <p>Apply changes the draft only; use Registry Save to persist.</p>
+            <p>Apply and Restore reset editor undo history. Restore returns the exact pre-AI draft and replaces subsequent edits.</p>
+            <p>Save or revert Source, then return to Design before requesting or applying. Finish visual fields first.</p>
+        </details>
+        <TextArea aria-label="Assistant instruction" placeholder="For example, add pagination to GET /items"
+            rows={5} value={instruction} isDisabled={state.pending}
             onChange={(_event, value) => setInstruction(value)} />
-        <Button isDisabled={state.pending || !instruction.trim()} onClick={() => void client.send(instruction, props.context)}>Propose</Button>
-        {state.pending && <Button variant="secondary" onClick={() => client.cancel("Stopped waiting. Server inference may still be running.")}>Stop waiting</Button>}
+        <div className="registry-openapi-ai-panel__actions">
+            <Button isDisabled={state.pending || !instruction.trim()} onClick={() => void client.send(instruction, props.context)}>Propose</Button>
+            {state.pending && <Button variant="secondary" onClick={() => client.cancel("Stopped waiting. Server inference may still be running.")}>Stop waiting</Button>}
+        </div>
         <div role="status" aria-live="polite">{state.pending ? "Preparing proposal…" : state.error}</div>
         {state.proposal && <>
             {state.proposal.status === "not_applicable" && <Alert isInline variant="warning" title="Proposal is not applicable" />}

@@ -1,5 +1,6 @@
 import React, { lazy, useCallback, useEffect, useMemo, useId, useRef, useState } from "react";
-import { Alert, Button, ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
+import { Alert, Button, Drawer, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody,
+    DrawerHead, DrawerPanelContent, Title, ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
 import type { DocumentChangeEvent } from "@apitomy/openapi-editor";
 import { EditorProps } from "./editor-types";
 import { IframeEditor } from "./IframeEditor";
@@ -39,6 +40,13 @@ export const OpenApiEditor: React.FunctionComponent<OpenApiEditorProps> = (props
     identity.current = props.documentId || identity.current;
     const [invalidation, setInvalidation] = useState(0);
     const [assistantOpen, setAssistantOpen] = useState(false);
+    const assistantToggle = useRef<HTMLButtonElement>(null);
+    const assistantHeading = useRef<HTMLHeadingElement>(null);
+    const panelId = `${generatedId}-assistant`;
+    const closeAssistant = (): void => {
+        setAssistantOpen(false);
+        assistantToggle.current?.focus();
+    };
     const [mount, setMount] = useState(0);
     const [restoreDraft, setRestoreDraft] = useState<typeof props.content>();
     const invalidate = (): void => {
@@ -134,39 +142,65 @@ export const OpenApiEditor: React.FunctionComponent<OpenApiEditorProps> = (props
                         isSelected={implementation === "previous"} onChange={() => switchEditor("previous")} />
                 </ToggleGroup>
                 {props.assistantEndpoint && implementation === "apitomy" &&
-                    <Button variant="link" onClick={() => setAssistantOpen(value => !value)}>
+                    <Button ref={assistantToggle} variant="secondary" aria-expanded={assistantOpen} aria-controls={panelId}
+                        onClick={() => setAssistantOpen(value => !value)}>
                         {assistantOpen ? "Close AI assistant" : "Open AI assistant"}
                     </Button>}
             </div>
-            {assistantOpen && props.assistantEndpoint && <OpenApiAiPanel endpoint={props.assistantEndpoint}
-                read={read} context={props.registryContext} apply={replaceDraft} restore={restore}
-                canRestore={!!restoreDraft} invalidation={invalidation} />}
-            <div ref={surface} className="registry-openapi-editor__surface" onClickCapture={event => {
-                const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".source-form button");
-                if (button?.textContent?.trim() === "Revert" && !button.disabled) {
-                    pendingField.current = false;
-                    invalidate();
-                }
-            }} onInputCapture={event => {
-                if ((event.target as HTMLElement).matches("input, textarea, [contenteditable=true]")) {
-                    pendingField.current = true;
-                    revision.current++;
-                }
-            }}>
-                {implementation === "previous" ? (
-                    <IframeEditor content={initialDraft} onChange={emitChange}
-                        editorType="OPENAPI" editorName="OpenApiEditor" frameId="openapi-editor-frame"
-                        className="editor-flex-editor" extraEditingInfo={{ openapi: { vendorExtensions: [] } }} />
-                ) : document ? (
-                    <EditorLoadBoundary diagnosticFallbackText={latestDraft.current.content}>
-                        <ApitomyEditor key={mount} initialContent={document} onChange={onDocumentChange} />
-                    </EditorLoadBoundary>
-                ) : (
-                    <Alert variant="warning" isInline title="Unable to load this OpenAPI document">
-                    Use the previous editor to open this document.
-                    </Alert>
-                )}
-            </div>
+            <Drawer className="registry-openapi-editor__drawer" isExpanded={assistantOpen} isInline position="end"
+                onExpand={() => assistantHeading.current?.focus()}>
+                <DrawerContent panelContent={
+                    <DrawerPanelContent id={panelId} className="registry-openapi-editor__assistant" isResizable
+                        defaultSize="420px" minSize="320px" maxSize="60%" resizeAriaLabel="Resize AI assistant"
+                        onKeyDown={event => {
+                            if (event.key === "Escape") {
+                                event.stopPropagation();
+                                closeAssistant();
+                            }
+                        }}>
+                        {assistantOpen && props.assistantEndpoint && <>
+                            <DrawerHead>
+                                <Title headingLevel="h2" size="lg" tabIndex={-1} ref={assistantHeading}>AI assistant</Title>
+                                <DrawerActions>
+                                    <DrawerCloseButton aria-label="Close assistant panel" onClose={closeAssistant} />
+                                </DrawerActions>
+                            </DrawerHead>
+                            <OpenApiAiPanel endpoint={props.assistantEndpoint}
+                                read={read} context={props.registryContext} apply={replaceDraft} restore={restore}
+                                canRestore={!!restoreDraft} invalidation={invalidation} />
+                        </>}
+                    </DrawerPanelContent>
+                }>
+                    <DrawerContentBody className="registry-openapi-editor__body" hasPadding={false}>
+                        <div ref={surface} className="registry-openapi-editor__surface" onClickCapture={event => {
+                            const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".source-form button");
+                            if (button?.textContent?.trim() === "Revert" && !button.disabled) {
+                                pendingField.current = false;
+                                invalidate();
+                            }
+                        }} onInputCapture={event => {
+                            if ((event.target as HTMLElement).matches("input, textarea, [contenteditable=true]")) {
+                                pendingField.current = true;
+                                revision.current++;
+                            }
+                        }}>
+                            {implementation === "previous" ? (
+                                <IframeEditor content={initialDraft} onChange={emitChange}
+                                    editorType="OPENAPI" editorName="OpenApiEditor" frameId="openapi-editor-frame"
+                                    className="editor-flex-editor" extraEditingInfo={{ openapi: { vendorExtensions: [] } }} />
+                            ) : document ? (
+                                <EditorLoadBoundary diagnosticFallbackText={latestDraft.current.content}>
+                                    <ApitomyEditor key={mount} initialContent={document} onChange={onDocumentChange} />
+                                </EditorLoadBoundary>
+                            ) : (
+                                <Alert variant="warning" isInline title="Unable to load this OpenAPI document">
+                                Use the previous editor to open this document.
+                                </Alert>
+                            )}
+                        </div>
+                    </DrawerContentBody>
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 };

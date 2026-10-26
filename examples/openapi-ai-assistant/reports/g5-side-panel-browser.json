@@ -1,0 +1,14 @@
+{
+  "results": [
+    "json: Source blocked/current draft hashed; Apply draft-only; history reset; new undo/redo; exact restore; explicit save/reload",
+    "yaml: Source blocked/current draft hashed; Apply draft-only; history reset; new undo/redo; exact restore; explicit save/reload",
+    "Existing ai-poc/inventory-api unchanged; no page errors",
+    "Side panel: desktop alignment and keyboard resize; mounted editor preserved; Escape/focus return; narrow overlay fits"
+  ],
+  "errors": [],
+  "requestCount": 4,
+  "created": [
+    "g5-json-1793005826706",
+    "g5-yaml-1793005831197"
+  ]
+}
